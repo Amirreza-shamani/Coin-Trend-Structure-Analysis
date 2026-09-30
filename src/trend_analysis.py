@@ -248,7 +248,7 @@ ax3.set_ylabel("Price", alpha=0.7)
 # endregion
 
 plt.savefig(
-    "../images/btc_trend_dashboard.png",
+    "../images/trend_dashboard.png",
     dpi=200,
     bbox_inches="tight",
     facecolor=fig.get_facecolor()
