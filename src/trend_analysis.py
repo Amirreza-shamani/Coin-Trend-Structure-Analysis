@@ -3,17 +3,32 @@ import yfinance as yf
 import pandas as pd
 from matplotlib import pyplot as plt
 
-#region Read Data
+#region Configuration
 
-ticker = "BTC-USD"
-df = yf.download(ticker, start="2020-12-29", end="2026-09-29", multi_level_index=False)
+ticker = "SOL-USD"
 
-close = df["Close"]
-X = np.arange(len(close))
+start_date = "2020-12-29"
+end_date = "2026-09-29"
+
+alpha = 0.04
 
 #endregion
 
-# region figure and gridspec
+#region Read Data
+
+df = yf.download(
+    ticker,
+    start=start_date,
+    end=end_date,
+    multi_level_index=False
+)
+
+close = df["Close"]
+x = np.arange(len(close))
+
+#endregion
+
+# region Create Figure
 
 plt.style.use("dark_background")
 
@@ -69,58 +84,57 @@ for ax in axes:
 
 # region ax0 ax1 Trend Line
 
-# region search for peak and vally
+# region search for peak and valley
 
-swing_X = []
-swing_Y = []
-swing_Type = []
+swing_x = []
+swing_y = []
+swing_type = []
 
 for i in range(1, len(close) - 1):
     if close.iloc[i - 1] < close.iloc[i] > close.iloc[i + 1]:
-        swing_Type.append("peak")
+        swing_type.append("peak")
     elif close.iloc[i - 1] > close.iloc[i] < close.iloc[i + 1]:
-        swing_Type.append("vally")
+        swing_type.append("valley")
     else:
         continue
 
-    swing_X.append(i)
-    swing_Y.append(close.iloc[i])
+    swing_x.append(i)
+    swing_y.append(close.iloc[i])
 
 # endregion
 
-X_trend = [X.min()]
-Y_trend = [close.iloc[0]]
+x_trend = [x.min()]
+y_trend = [close.iloc[0]]
 
 reference = close.iloc[0]
 
-alpha = 0.04
 temp = None
 
 # region expected type
 
 peak_score = 0
-vally_score = 0
+valley_score = 0
 last_data_peak = close.iloc[0]
-last_data_vally = close.iloc[0]
+last_data_valley = close.iloc[0]
 
-for i in range(min(10, len(swing_Type))):
-    if swing_Type[i] == "peak":
+for i in range(min(10, len(swing_type))):
+    if swing_type[i] == "peak":
 
-        if swing_Y[i] > last_data_peak:
+        if swing_y[i] > last_data_peak:
             peak_score += 1
-            last_data_peak = swing_Y[i]
+            last_data_peak = swing_y[i]
         else:
-            vally_score += 1
+            valley_score += 1
 
 
     else:
-        if swing_Y[i] < last_data_vally:
-            vally_score += 1
-            last_data_vally = swing_Y[i]
+        if swing_y[i] < last_data_valley:
+            valley_score += 1
+            last_data_valley = swing_y[i]
         else:
             peak_score += 1
 
-text = ("peak" if peak_score >= vally_score else "vally")
+text = ("peak" if peak_score >= valley_score else "valley")
 print(text)
 expected_type = text
 
@@ -136,43 +150,43 @@ fig.text(0.72, 0.925,
 
 # endregion
 
-# region X/Y Trend
+# region x/Y Trend
 
-for day, price, t in zip(swing_X, swing_Y, swing_Type):
+for day, price, t in zip(swing_x, swing_y, swing_type):
     if expected_type == "peak" and t == "peak":
         if price > reference:
             reference = price
             temp = day
         elif price < reference * (1 - alpha):
-            expected_type = "vally"
-            Y_trend.append(reference)
-            X_trend.append(temp)
-    elif expected_type == "vally" and t == "vally":
+            expected_type = "valley"
+            y_trend.append(reference)
+            x_trend.append(temp)
+    elif expected_type == "valley" and t == "valley":
         if price < reference:
             reference = price
             temp = day
         elif price > reference * (1 + alpha):
             expected_type = "peak"
-            Y_trend.append(reference)
-            X_trend.append(temp)
+            y_trend.append(reference)
+            x_trend.append(temp)
 
-X_trend.append(X.max())
-Y_trend.append(close.iloc[-1])
+x_trend.append(x.max())
+y_trend.append(close.iloc[-1])
 
 # endregion
 
 # region ax0
 ax0.set_title("PRICE ACTION + DETECTED TREND STRUCTURE", loc="left", fontsize=11, fontweight="bold", pad=12)
 
-ax0.plot(X, close, linewidth=2, alpha=1, color="w")
+ax0.plot(x, close, linewidth=2, alpha=1, color="w")
 
-ax0.plot(X_trend, Y_trend, linewidth=1, marker="o", markersize=3, color="#e8a619")
+ax0.plot(x_trend, y_trend, linewidth=1, marker="o", markersize=3, color="#e8a619")
 
 ax0.set_ylabel(f"{ticker} Price", alpha=0.7)
 
 ax0.text(
     0.99, 0.92,
-    f"{len(X_trend) - 2} swings detected",
+    f"{len(x_trend) - 2} swings detected",
     transform=ax0.transAxes,
     ha="right",
     fontsize=9,
@@ -185,7 +199,7 @@ ax0.text(
 
 ax1.set_title("SIMPLIFIED SWING PATH", loc="left", fontsize=11, fontweight="bold", pad=10)
 
-ax1.plot(X_trend, Y_trend, linewidth=2.5, color="#e8a619")
+ax1.plot(x_trend, y_trend, linewidth=2.5, color="#e8a619")
 
 ax1.set_ylabel("Price", alpha=0.7)
 
@@ -196,21 +210,21 @@ ax1.set_ylabel("Price", alpha=0.7)
 
 # region ax2 start -> min/max -> max/min -> end
 
-start_point = (X.min(), close.iloc[0])  # (x1,y1)
-max_point = (close.argmax(), close.max())
-min_point = (close.argmin(), close.min())
-end_point = (X.max(), close.iloc[-1])  # (x2,y2)
+start_point = (x.min(), close.iloc[0])  # (x1,y1)
+highest_point = (close.argmax(), close.max())
+lowest_point = (close.argmin(), close.min())
+end_point = (x.max(), close.iloc[-1])  # (x2,y2)
 
-if max_point[0] > min_point[0]:
-    max_point, min_point = min_point, max_point
+if highest_point[0] > lowest_point[0]:
+    highest_point, lowest_point = lowest_point, highest_point
 
 ax2.set_title("GLOBAL EXTREMES", loc="left", fontsize=11, fontweight="bold", pad=10)
 
-ax2.plot(X, close, linewidth=1, alpha=0.45)
+ax2.plot(x, close, linewidth=1, alpha=0.45)
 
 ax2.plot(
-    [start_point[0], max_point[0], min_point[0], end_point[0]],
-    [start_point[1], max_point[1], min_point[1], end_point[1]],
+    [start_point[0], highest_point[0], lowest_point[0], end_point[0]],
+    [start_point[1], highest_point[1], lowest_point[1], end_point[1]],
     marker="o",
     linestyle="-",
     linewidth=2
@@ -231,15 +245,15 @@ ax3.set_title(
 )
 
 ax3.plot(
-    X,
+    x,
     close,
     linewidth=1,
     alpha=0.5
 )
 
 ax3.scatter(
-    swing_X,
-    swing_Y,
+    swing_x,
+    swing_y,
     s=18,
     alpha=0.8
 )
@@ -248,7 +262,7 @@ ax3.set_ylabel("Price", alpha=0.7)
 # endregion
 
 plt.savefig(
-    "../images/trend_dashboard.png",
+    "../images/sol_trend_dashboard.png",
     dpi=200,
     bbox_inches="tight",
     facecolor=fig.get_facecolor()

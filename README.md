@@ -6,7 +6,19 @@ The project converts raw price data into a simplified representation of market s
 
 ## Dashboard
 
-![Coin Trend Structure Dashboard](images/trend_dashboard.png)
+The analysis generates a multi-panel dashboard for visualizing cryptocurrency market structure.
+
+### Bitcoin
+
+![Bitcoin Trend Structure Dashboard](images/btc_trend_dashboard.png)
+
+### Ethereum
+
+![Ethereum Trend Structure Dashboard](images/eth_trend_dashboard.png)
+
+### Solana
+
+![Solana Trend Structure Dashboard](images/sol_trend_dashboard.png)
 
 ## Project Overview
 
@@ -92,13 +104,25 @@ Highlights the major high and low points across the selected period.
 
 Displays the detected local extrema throughout the entire dataset.
 
+## Example Assets
+
+The analysis was tested on multiple cryptocurrency assets:
+
+| Asset    | Ticker  |
+| -------- | ------- |
+| Bitcoin  | BTC-USD |
+| Ethereum | ETH-USD |
+| Solana   | SOL-USD |
+
 ## Project Structure
 
 ```text
 Coin-Trend-Structure-Analysis/
 │
 ├── images/
-│   └── trend_dashboard.png
+│   ├── btc_trend_dashboard.png
+│   ├── eth_trend_dashboard.png
+│   └── sol_trend_dashboard.png
 │
 ├── src/
 │   └── trend_analysis.py
@@ -113,4 +137,75 @@ Coin-Trend-Structure-Analysis/
 * Python
 * NumPy
 * Pandas
-* Matp
+* Matplotlib
+* yfinance
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Amirreza-shamani/Coin-Trend-Structure-Analysis.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd Coin-Trend-Structure-Analysis
+```
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Open:
+
+```text
+src/trend_analysis.py
+```
+
+Change the ticker if needed:
+
+```python
+ticker = "BTC-USD"
+```
+
+For example:
+
+```python
+ticker = "ETH-USD"
+```
+
+Then run the script.
+
+The analysis will download the historical data, detect local extrema and significant trend reversals, generate the dashboard, and save the resulting visualization inside the `images/` directory.
+
+## Notes
+
+This project is intended as an exploratory data-analysis and visualization tool.
+
+The detected trend structure is based on predefined rules and thresholds. It should therefore be considered a simplified representation of price action rather than a complete trading or financial prediction system.
+
+## Future Improvements
+
+Possible future improvements include:
+
+* Configurable analysis parameters
+* Additional technical indicators
+* More advanced swing-point detection
+* Interactive visualizations
+* Support for multiple assets in a single analysis
+* Statistical comparison between different assets
+* Additional market-structure metrics
+
+## Author
+
+**Amirreza Shamani**
+
+Computer Science & Mathematics Student
+
+GitHub: [Amirreza-shamani](https://github.com/Amirreza-shamani)
